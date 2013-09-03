@@ -400,7 +400,8 @@ class Bucket
      *
      * @author Eric Stevens <estevens@taglabsinc.com>
      * @param string $indexName - The name of the index to search
-     * @param string $indexType - The type of index ('int' or 'bin')
+     * @param string|null $indexType - The type of index ('int' or 'bin'). 
+     *                                 Set to null, when quering on special indexes such as $bucket
      * @param string|int $startOrExact
      * @param string|int optional $end
      * @param bool optional $dedupe - whether to eliminate duplicate entries if any
@@ -408,7 +409,13 @@ class Bucket
      */
     public function indexSearch($indexName, $indexType, $startOrExact, $end = null, $dedupe = false)
     {
-        $url = Utils::buildIndexPath($this->client, $this, "{$indexName}_{$indexType}", $startOrExact, $end, null);
+        if ($indexType === null) {
+            $index = $indexName;
+        } else {
+            $index = "{$indexName}_{$indexType}";
+        }
+        
+        $url = Utils::buildIndexPath($this->client, $this, $index, $startOrExact, $end, null);
         $response = Utils::httpRequest('GET', $url);
 
         $obj = new Object($this->client, $this, null);
