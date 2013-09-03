@@ -159,7 +159,7 @@ class Utils
      *
      * @return array
      */
-    public static function httpRequest($method, $url, $request_headers = array(), $obj = '')
+    public static function httpRequest($method, $url, $request_headers = array(), $obj = '', $response_body_io = NULL)
     {
         # Set up curl
         $ch = curl_init();
@@ -189,7 +189,9 @@ class Utils
         curl_setopt($ch, CURLOPT_HEADERFUNCTION, array(&$response_headers_io, 'write'));
 
         # Capture the response body...
-        $response_body_io = new StringIO();
+        if ($response_body_io === NULL) {
+            $response_body_io = new StringIO();
+        }
         curl_setopt($ch, CURLOPT_WRITEFUNCTION, array(&$response_body_io, 'write'));
 
         try {

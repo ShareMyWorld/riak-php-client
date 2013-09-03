@@ -22,7 +22,8 @@ namespace Basho\Riak;
 use Basho\Riak\Exception,
     Basho\Riak\Link,
     Basho\Riak\Object,
-    Basho\Riak\Utils;
+    Basho\Riak\Utils,
+    Basho\Riak\StreamKeysIO;
 
 /**
  * Bucket
@@ -374,23 +375,24 @@ class Bucket
      *
      * Note: this operation is pretty slow.
      *
+     * @author Andreas Duchen <andreas.duchen@gmail.com>
      * @return Array
      */
     public function getKeys()
     {
-        $params = array('props' => 'false', 'keys' => 'true');
+        $params = array('props' => 'false', 'keys' => 'stream');
         $url = Utils::buildRestPath($this->client, $this, null, null, $params);
-        $response = Utils::httpRequest('GET', $url);
+        $response = Utils::httpRequest('GET', $url, array(), '', new StreamKeysIO());
 
         # Use a Object to interpret the response, we are just interested in the value.
+        # We need to turn off jsonize as StreamKeysIO will do the decoding for us.
         $obj = new Object($this->client, $this, null);
+        $obj->jsonize = false;
         $obj->populate($response, array(200));
         if (!$obj->exists()) {
             throw new Exception("Error getting bucket properties.");
         }
-        $keys = $obj->getData();
-
-        return $keys["keys"];
+        return $obj->getData();
     }
 
     /**
