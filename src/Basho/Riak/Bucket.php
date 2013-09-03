@@ -390,7 +390,7 @@ class Bucket
         }
         $keys = $obj->getData();
 
-        return array_map("urldecode", $keys["keys"]);
+        return $keys["keys"];
     }
 
     /**
@@ -416,7 +416,7 @@ class Bucket
             throw new Exception("Error searching index.");
         }
         $data = $obj->getData();
-        $keys = array_map("urldecode", $data["keys"]);
+        $keys = $data["keys"];
 
         $seenKeys = array();
         foreach ($keys as $id => &$key) {
