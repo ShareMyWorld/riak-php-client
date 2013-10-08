@@ -137,11 +137,24 @@ class Utils
         # Add '.../index_type'
         $path[] = urlencode($index);
 
+        /**
+         * WARNING WARNING WARNING!!!!!
+         * 
+         * Riak 1.3.2 (and below) does not urldecode indexes when storing data.
+         * Indexes are stored ENCODED. (Bad riak :( )
+         * 
+         * This means we need to urlencode twice here.
+         * The ugly thing here is that we need to take this into account when using PB Api
+         * or if they eventually fix this problem in the future.
+         * Once we store data with ENCODED indexes, we need to continue to do so.
+         * 
+         * WARNING WARNING WARNING!!!!!
+         */
         # Add .../(start|exact)
-        $path[] = urlencode($start);
+        $path[] = urlencode(urlencode($start));
 
         if (!is_null($end)) {
-            $path[] = urlencode($end);
+            $path[] = urlencode(urlencode($end));
         }
 
         // faster than repeated string concatenations
